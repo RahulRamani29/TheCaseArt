@@ -1,0 +1,47 @@
+<?php
+include("include/connection.php");
+            // show categories list
+            $q = mysqli_query($conn,"select * from category");
+            while ($res = mysqli_fetch_assoc($q))
+            {
+                echo '<a href="pic.php?cat_id='. $res['cat_id'] .'">'.$res['cat_name'].'<br/>';
+            }
+
+            ?>
+            <hr>
+            <?php
+             //show image from that category
+            $cat_id = $_GET['id'];
+            $query = "SELECT * FROM product JOIN category ON image = id WHERE id = '$cat_id'";
+            $result = mysqli_query($conn, $query) or die("Query failed: " . mysqli_errno($conn));
+
+            $line = mysqli_fetch_array($result, MYSQL_BOTH);
+            if (!$line) echo '';
+            $previd = -1;
+            $currid = $line[0];
+            if (isset($_GET['id'])) {
+                do {
+                    $currid = $line[0];
+                    if ($currid == $_GET['id']) break;
+                    $previd = $currid;
+                    $line = mysqli_fetch_array($result, MYSQL_BOTH);
+                } while ($line);
+            }
+
+
+            if ($previd > -1) echo '<a href="pic.php?cat_id='.$previd.'" class="prev_pic"><span>Prev</span></a>';
+            echo str_repeat('&nbsp;', 5);
+
+            $line = mysqli_fetch_array($result, MYSQL_BOTH);
+
+            $query = "select * from images order by RAND() LIMIT 1";
+            $result = mysqli_query($con, $query) or die("Query failed: " . mysqli_errno($con));
+            while ($row = mysqli_fetch_array($result, MYSQL_BOTH)){
+                echo '<a href="pic.php?cat_id='.$row['id'].'"class="random">Random</a>';
+            }
+            echo str_repeat('&nbsp;', 5);
+            if ($line) echo '<a href="pic.php?cat_id='.$line[0].'&id='.$line[0].'" class="next_pic"><span>Next</span> </a><br /><br />';
+
+            echo "</div>";
+
+            ?>
